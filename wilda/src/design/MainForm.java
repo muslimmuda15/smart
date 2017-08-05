@@ -5,6 +5,9 @@
  */
 package design;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
 /**
  *
  * @author rachmad
@@ -15,6 +18,11 @@ public class MainForm extends javax.swing.JFrame {
      * Creates new form MainForm
      */
     public MainForm() {
+        setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+        getRootPane().setWindowDecorationStyle(javax.swing.JRootPane.NONE);
+        setLocation(0,0);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        setSize((int)screenSize.getWidth()-50,(int)screenSize.getHeight()-50);
         initComponents();
     }
 
@@ -27,92 +35,105 @@ public class MainForm extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        menuMobil = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
+        editUtility = new javax.swing.JMenuItem();
+        editBobot = new javax.swing.JMenuItem();
+        jMenu3 = new javax.swing.JMenu();
+        analisaBobot = new javax.swing.JMenuItem();
+        analisaMobil = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jButton1.setText("Data Mobil");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jMenu1.setText("Mobil");
+
+        menuMobil.setText("Data Mobil");
+        menuMobil.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                menuMobilActionPerformed(evt);
             }
         });
+        jMenu1.add(menuMobil);
 
-        jButton2.setText("Pilih Keriteria");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Edit");
+
+        editUtility.setText("Utility");
+        editUtility.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                editUtilityActionPerformed(evt);
             }
         });
+        jMenu2.add(editUtility);
 
-        jButton3.setText("Kriteria");
-
-        jButton4.setText("Ubah Bobot");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        editBobot.setText("Bobot");
+        editBobot.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                editBobotActionPerformed(evt);
             }
         });
+        jMenu2.add(editBobot);
 
-        jButton5.setText("Analisa");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
+        jMenuBar1.add(jMenu2);
+
+        jMenu3.setText("Analisa");
+
+        analisaBobot.setText("Bobot");
+        analisaBobot.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
+                analisaBobotActionPerformed(evt);
             }
         });
+        jMenu3.add(analisaBobot);
+
+        analisaMobil.setText("Mobil");
+        analisaMobil.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                analisaMobilActionPerformed(evt);
+            }
+        });
+        jMenu3.add(analisaMobil);
+
+        jMenuBar1.add(jMenu3);
+
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(607, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(62, 62, 62))
+            .addGap(0, 765, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(53, 53, 53)
-                .addComponent(jButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton5)
-                .addContainerGap(166, Short.MAX_VALUE))
+            .addGap(0, 362, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void menuMobilActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuMobilActionPerformed
         new DataMobil().setVisible(true);
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_menuMobilActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void editUtilityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editUtilityActionPerformed
+        new DataUtility().setVisible(true);
+    }//GEN-LAST:event_editUtilityActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+    private void editBobotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editBobotActionPerformed
         new DataBobot().setVisible(true);
-    }//GEN-LAST:event_jButton4ActionPerformed
+    }//GEN-LAST:event_editBobotActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+    private void analisaBobotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analisaBobotActionPerformed
         new FormAnalisa().setVisible(true);
-    }//GEN-LAST:event_jButton5ActionPerformed
+    }//GEN-LAST:event_analisaBobotActionPerformed
+
+    private void analisaMobilActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analisaMobilActionPerformed
+        new FormAnalisaMobil().setVisible(true);
+    }//GEN-LAST:event_analisaMobilActionPerformed
 
     /**
      * @param args the command line arguments
@@ -150,10 +171,14 @@ public class MainForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
+    private javax.swing.JMenuItem analisaBobot;
+    private javax.swing.JMenuItem analisaMobil;
+    private javax.swing.JMenuItem editBobot;
+    private javax.swing.JMenuItem editUtility;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem menuMobil;
     // End of variables declaration//GEN-END:variables
 }

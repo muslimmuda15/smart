@@ -18,6 +18,21 @@ import java.util.logging.Logger;
 public class CountData {
     TestConnection tc;
     private String getCount;
+    private int getCountQuery;
+    
+    public CountData(String table){
+        String query = "SELECT COUNT(*) FROM " + table + ";";
+        try {
+            tc = new TestConnection();
+            PreparedStatement statement =  tc.getConnection().prepareStatement(query);
+            ResultSet result = statement.executeQuery();
+            int count= result.getInt(1);
+            this.getCountQuery = count;
+        } catch (SQLException ex) {
+            Logger.getLogger(CountData.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     public CountData(String table, String column){
         String query = "SELECT SUM(" + column + ") FROM " + table + ";";
         try {
@@ -33,5 +48,9 @@ public class CountData {
     }
     public String getCount(){
         return getCount;
-    }       
+    }
+    
+    public int getCountQuery(){
+        return getCountQuery;
+    }  
 }
