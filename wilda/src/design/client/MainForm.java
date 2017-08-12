@@ -9,18 +9,27 @@ import design.DataMobil;
 import design.InsertUpdate;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.event.ItemEvent;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
 import model.ListData;
 import model.LoadTable;
+import model.MinMaxData;
 import model.TestConnection;
 
 /**
@@ -32,9 +41,14 @@ public class MainForm extends javax.swing.JFrame {
     /**
      * Creates new form MainForm
      */
-    DefaultTableModel tm;
+    private MinMaxData minMaxData;
+    DefaultTableModel tm, currtableModel;
     TestConnection tc;
     List<JComboBox<String>> combo = new ArrayList<>();
+    List<JLabel> lblCombo = new ArrayList<>();
+    Vector originalTableModel;
+    String max;
+    String budget = "";
     public MainForm() {
         setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
         getRootPane().setWindowDecorationStyle(javax.swing.JRootPane.NONE);
@@ -49,11 +63,18 @@ public class MainForm extends javax.swing.JFrame {
         /* combo list fot criteria */
         Object[] dataModelMobil = new ListData("mobil", "model").getData();
         for(int i=0; i<8; i++){
+            JLabel lblComboBox = new JLabel("Alternatif " + (i+1) + "   ");
             JComboBox comboBox = new JComboBox(dataModelMobil);
+            lblCombo.add(lblComboBox);
             combo.add(comboBox);
         }
         
         initComponents();
+        
+        minMaxData = new MinMaxData(tc.getConnection(), "mobil", "purna_jual");
+        max = minMaxData.getMax();
+        
+        originalTableModel = (Vector) ((DefaultTableModel) jTable2.getModel()).getDataVector().clone();
     }
 
     /**
@@ -91,12 +112,15 @@ public class MainForm extends javax.swing.JFrame {
         jPanel6 = new javax.swing.JPanel();
         jLabel23 = new javax.swing.JLabel();
         jLabel24 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        txtBudget = new javax.swing.JTextField();
         jComboBox9 = new javax.swing.JComboBox<>();
         jButton4 = new javax.swing.JButton();
         jPanel8 = new javax.swing.JPanel();
         panelLabelLaternatif = new javax.swing.JPanel();
         panelAlternatif = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTable2 = new javax.swing.JTable();
+        txtSearch = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
         chkTransmisi = new javax.swing.JCheckBox();
         jLabel8 = new javax.swing.JLabel();
@@ -126,8 +150,6 @@ public class MainForm extends javax.swing.JFrame {
         txtBahanBakarBobot1 = new javax.swing.JTextField();
         txtHargaBobo1 = new javax.swing.JTextField();
         txtPurnaJualBobot1 = new javax.swing.JTextField();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
         jPanel13 = new javax.swing.JPanel();
         jPanel16 = new javax.swing.JPanel();
         jLabel11 = new javax.swing.JLabel();
@@ -310,7 +332,10 @@ public class MainForm extends javax.swing.JFrame {
 
         jLabel24.setText("Jumlah yang di pilih");
 
+        txtBudget.setDocument(new JTextFieldLimit(10));
+
         jComboBox9.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3", "4", "5", "6", "7", "8" }));
+        jComboBox9.setSelectedIndex(7);
         jComboBox9.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 jComboBox9ItemStateChanged(evt);
@@ -318,22 +343,21 @@ public class MainForm extends javax.swing.JFrame {
         });
 
         jButton4.setText("OK");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         jPanel8.setLayout(new java.awt.BorderLayout());
 
-        javax.swing.GroupLayout panelLabelLaternatifLayout = new javax.swing.GroupLayout(panelLabelLaternatif);
-        panelLabelLaternatif.setLayout(panelLabelLaternatifLayout);
-        panelLabelLaternatifLayout.setHorizontalGroup(
-            panelLabelLaternatifLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-        panelLabelLaternatifLayout.setVerticalGroup(
-            panelLabelLaternatifLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 269, Short.MAX_VALUE)
-        );
-
+        panelLabelLaternatif.setLayout(new java.awt.GridLayout(8, 0));
+        for(int i=0; i<8; i++){
+            panelLabelLaternatif.add(lblCombo.get(i));
+        }
         jPanel8.add(panelLabelLaternatif, java.awt.BorderLayout.LINE_START);
 
+        panelAlternatif.setBorder(null);
         panelAlternatif.setLayout(new java.awt.GridLayout(8, 0));
 
         for(int i=0; i<8; i++){
@@ -342,26 +366,41 @@ public class MainForm extends javax.swing.JFrame {
 
         jPanel8.add(panelAlternatif, java.awt.BorderLayout.CENTER);
 
+        jTable2.setModel(tm);
+        jScrollPane2.setViewportView(jTable2);
+
+        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtSearchKeyReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
-                .addGap(36, 36, 36)
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2)
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel23)
-                            .addComponent(jLabel24))
-                        .addGap(25, 25, 25)
-                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jComboBox9, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel6Layout.createSequentialGroup()
-                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel23)
+                                .addGap(101, 101, 101)
+                                .addComponent(txtBudget, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(696, Short.MAX_VALUE))
+                                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabel24)
+                                .addGap(25, 25, 25)
+                                .addComponent(jComboBox9, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, 443, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 476, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -369,15 +408,16 @@ public class MainForm extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel23)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtBudget, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton4)
                     .addComponent(jComboBox9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel24))
-                .addGap(40, 40, 40)
-                .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(323, Short.MAX_VALUE))
+                    .addComponent(jLabel24)
+                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         jTabbedPane1.addTab("Alternatif", jPanel6);
@@ -489,9 +529,6 @@ public class MainForm extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jTable2.setModel(tm);
-        jScrollPane2.setViewportView(jTable2);
-
         jPanel13.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         jPanel16.setBorder(null);
@@ -555,15 +592,12 @@ public class MainForm extends javax.swing.JFrame {
                 .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-            .addComponent(jScrollPane2)
+                .addGap(0, 33, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addContainerGap(456, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -686,15 +720,94 @@ public class MainForm extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jComboBox9ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox9ItemStateChanged
-//        for(int i=0; i<combo.size(); i++){
-//            if()
-//        }
-        System.out.println(jComboBox9.getItemAt(jComboBox9.getSelectedIndex()) + " : " + jComboBox9.getSelectedItem());
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            for(int i=0; i<combo.size(); i++){
+                int selected = Integer.parseInt(jComboBox9.getSelectedItem().toString());
+                if(i < selected)
+                    combo.get(i).setEnabled(true);
+                else
+                    combo.get(i).setEnabled(false);
+            }
+            System.out.println(jComboBox9.getItemAt(jComboBox9.getSelectedIndex()) + " : " + jComboBox9.getSelectedItem());
+        }
     }//GEN-LAST:event_jComboBox9ItemStateChanged
 
     private void txtModelKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtModelKeyTyped
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_txtModelKeyTyped
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        try{
+            budget = txtBudget.getText();
+            /* filter table */
+            currtableModel = (DefaultTableModel) jTable2.getModel();
+            //To empty the table before search
+            currtableModel.setRowCount(0);
+            //To search for contents from original table content
+            for (Object rows : originalTableModel) {
+                Vector rowVector = (Vector) rows;
+                Object purnaJualColumn = rowVector.get(7);
+                System.out.println(purnaJualColumn);
+                if(!txtBudget.getText().equals("")){
+                    if ((Integer.parseInt(purnaJualColumn.toString()) <= Integer.parseInt(txtBudget.getText()))) {
+                        //content found so adding to table
+                        currtableModel.addRow(rowVector);
+                    }
+                }
+                else{
+                    if ((Integer.parseInt(purnaJualColumn.toString()) <= Integer.parseInt(max))) {
+                        currtableModel.addRow(rowVector);
+                    }
+                }
+            }
+            
+            
+            int budget = Integer.parseInt(txtBudget.getText());
+            
+            Object sql = "select model from mobil where purna_jual <= " + budget + ";";
+            Object[] dataModelMobil = new ListData(sql, "model").getData();
+            for(int i=0; i<combo.size(); i++){
+                combo.get(i).removeAllItems();
+                if(dataModelMobil.length > 0){
+                    for(Object data : dataModelMobil)
+                        combo.get(i).addItem(data.toString());
+                }
+                else{
+                    combo.get(i).addItem("--Empty--");
+                }
+            }
+        }
+        catch(Exception ex){
+            
+        }
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void txtSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyReleased
+        currtableModel = (DefaultTableModel) jTable2.getModel();
+        //To empty the table before search
+        currtableModel.setRowCount(0);
+        //To search for contents from original table content
+        for (Object rows : originalTableModel) {
+            Vector rowVector = (Vector) rows;
+            Object purnaJualColumn = rowVector.get(7);
+            for (Object column : rowVector) {
+                if(Pattern.compile("^\\s+$").matcher(budget).find() || budget.equals("")){
+                    if (column.toString().toLowerCase().contains(txtSearch.getText())) {
+                        //content found so adding to table
+                        currtableModel.addRow(rowVector);
+                        break;
+                    }
+                }
+                else{
+                    if (column.toString().toLowerCase().contains(txtSearch.getText()) && (Integer.parseInt(purnaJualColumn.toString()) <= Integer.parseInt(budget))) {
+                        //content found so adding to table
+                        currtableModel.addRow(rowVector);
+                        break;
+                    }
+                }
+            }
+        }
+    }//GEN-LAST:event_txtSearchKeyReleased
 
     /**
      * @param args the command line arguments
@@ -780,7 +893,6 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JPanel panelAlternatif;
     private javax.swing.JPanel panelLabelLaternatif;
     private javax.swing.JTextField txtBahanBakar;
@@ -788,6 +900,7 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JTextField txtBahanBakar3;
     private javax.swing.JTextField txtBahanBakarBobot1;
     private javax.swing.JTextField txtBahanBakarBobot3;
+    private javax.swing.JTextField txtBudget;
     private javax.swing.JTextField txtHarga;
     private javax.swing.JTextField txtHarga1;
     private javax.swing.JTextField txtHarga3;
@@ -809,6 +922,7 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JTextField txtPurnaJual3;
     private javax.swing.JTextField txtPurnaJualBobot1;
     private javax.swing.JTextField txtPurnaJualBobot3;
+    private javax.swing.JTextField txtSearch;
     private javax.swing.JTextField txtTransmisi;
     private javax.swing.JTextField txtTransmisi1;
     private javax.swing.JTextField txtTransmisi3;
@@ -820,4 +934,21 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JTextField txtWarnaBobot1;
     private javax.swing.JTextField txtWarnaBobot3;
     // End of variables declaration//GEN-END:variables
+}
+
+class JTextFieldLimit extends PlainDocument {
+  private int limit;
+
+  JTextFieldLimit(int limit) {
+   super();
+   this.limit = limit;
+   }
+
+  public void insertString( int offset, String  str, AttributeSet attr ) throws BadLocationException {
+    if (str == null) return;
+
+    if ((getLength() + str.length()) <= limit) {
+      super.insertString(offset, str, attr);
+    }
+  }
 }
