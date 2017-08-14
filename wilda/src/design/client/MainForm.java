@@ -74,7 +74,7 @@ public class MainForm extends javax.swing.JFrame {
             
             /* set multi value inside combobox */
             Vector model = new Vector();
-            for(int j=0; j<dataModelMultiColumn.length; j++){
+            for(int j=i; j<dataModelMultiColumn.length; j++){
                 //System.out.println(Arrays.toString((String[])dataModelMultiColumn[j]));
                 String[] dataMobil = (String[])dataModelMultiColumn[j];
                 model.addElement(new Item(dataMobil[0], dataMobil[1]));
@@ -163,6 +163,7 @@ public class MainForm extends javax.swing.JFrame {
         txtSearch = new javax.swing.JTextField();
         jPanel11 = new javax.swing.JPanel();
         jLabel13 = new javax.swing.JLabel();
+        jButton5 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jPanel7 = new javax.swing.JPanel();
         jPanel9 = new javax.swing.JPanel();
@@ -472,7 +473,11 @@ public class MainForm extends javax.swing.JFrame {
             jPanel11.add(txtListId.get(i));
         }
 
-        jLabel13.setText("Search");
+        jPanel11.setVisible(false);
+
+        jLabel13.setText("Search   ");
+
+        jButton5.setText("Proses");
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
@@ -494,14 +499,16 @@ public class MainForm extends javax.swing.JFrame {
                                 .addComponent(jLabel24)
                                 .addGap(25, 25, 25)
                                 .addComponent(jComboBox9, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 222, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 213, Short.MAX_VALUE)
                                 .addComponent(jLabel13))
                             .addGroup(jPanel6Layout.createSequentialGroup()
                                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, 443, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
@@ -519,9 +526,11 @@ public class MainForm extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE)
-                    .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE)
+                        .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jButton5))
                 .addContainerGap())
         );
 
@@ -781,7 +790,7 @@ public class MainForm extends javax.swing.JFrame {
                 else
                     combo.get(i).setEnabled(false);
             }
-            System.out.println(jComboBox9.getItemAt(jComboBox9.getSelectedIndex()) + " : " + jComboBox9.getSelectedItem());
+//            System.out.println(jComboBox9.getItemAt(jComboBox9.getSelectedIndex()) + " : " + jComboBox9.getSelectedItem());
         }
     }//GEN-LAST:event_jComboBox9ItemStateChanged
 
@@ -832,30 +841,72 @@ public class MainForm extends javax.swing.JFrame {
             
             //Object sql = "select model from mobil where purna_jual <= " + budget + ";";
             Object[] dataModelMultiColumn = new ListData("mobil", "id_mobil", "model", budget).getMultiColumnData();
+            System.out.println("Data Mobil : " + dataModelMultiColumn.length);
+            
+            if(dataModelMultiColumn.length < 8){
+                DefaultComboBoxModel countItemDisable = new DefaultComboBoxModel();
+                for(int k=0; k< dataModelMultiColumn.length; k++){
+                    countItemDisable.addElement( k+1 );
+                }
+                jComboBox9.setModel(countItemDisable);
+                jComboBox9.setSelectedIndex(dataModelMultiColumn.length - 1);
+            }
+            else{
+                DefaultComboBoxModel countItemDisable = new DefaultComboBoxModel();
+                for(int k=0; k< 8; k++){
+                    countItemDisable.addElement( k+1 );
+                }
+                jComboBox9.setModel(countItemDisable);
+                jComboBox9.setSelectedIndex(7);
+            }
+            
             for(int i=0; i<combo.size(); i++){
-                //combo.get(i).removeAllItems();
-                Vector model = new Vector();
-                if(dataModelMultiColumn.length > 0){
-                    /* set multi value inside combobox */
-                    for(int j=0; j<dataModelMultiColumn.length; j++){
-                        //System.out.println(Arrays.toString((String[])dataModelMultiColumn[j]));
-                        String[] dataMobil = (String[])dataModelMultiColumn[j];
-                        model.addElement(new Item(dataMobil[0], dataMobil[1]));
+                try{
+                    //combo.get(i).removeAllItems();
+                    txtListId.get(i).setText("");
+                    combo.get(i).setEnabled(true);
+                    
+                    Vector model = new Vector();
+                    if(dataModelMultiColumn.length > 0){
+                        /* set multi value inside combobox */
+                        if(dataModelMultiColumn.length > 8){
+                            for(int j=i; j<dataModelMultiColumn.length; j++){
+                                //System.out.println(Arrays.toString((String[])dataModelMultiColumn[j]));
+                                String[] dataMobil = (String[])dataModelMultiColumn[j];
+                                model.addElement(new Item(dataMobil[0], dataMobil[1]));
+                            }
+                        }
+                        else{
+                            for(int j=i; j<8; j++){
+                                //System.out.println(Arrays.toString((String[])dataModelMultiColumn[j]));
+                                try{
+                                    String[] dataMobil = (String[])dataModelMultiColumn[j];
+                                    model.addElement(new Item(dataMobil[0], dataMobil[1]));
+                                }
+                                catch(ArrayIndexOutOfBoundsException e){
+                                    /* if out of index item */
+                                }
+                            }
+                        }
+            //            comboBox.setRenderer( new ItemRenderer() );
                     }
-        //            comboBox.setRenderer( new ItemRenderer() );
-                }
-                else{
-                    model.addElement(new Item("", "--Empty--"));
-                }
+                    else{
+                        model.addElement(new Item("", "--Empty--"));
+                    }
 
-                 combo.get(i).setModel(new DefaultComboBoxModel(model));
-                //combo.get(i) = new JComboBox(model);
-                Item item = (Item)combo.get(i).getSelectedItem();
-                txtListId.get(i).setText(item.getId());
+                    combo.get(i).setModel(new DefaultComboBoxModel(model));
+                    //combo.get(i) = new JComboBox(model);
+                    Item item = (Item)combo.get(i).getSelectedItem();
+                    txtListId.get(i).setText(item.getId());
+                }
+                catch(NullPointerException ee){
+                    /* if combo out of bound */
+                    combo.get(i).setEnabled(false);
+                }
             }
         }
         catch(Exception ex){
-            
+            ex.printStackTrace();
         }
     }//GEN-LAST:event_jButton4ActionPerformed
 
@@ -932,6 +983,7 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JComboBox<String> jComboBox9;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;

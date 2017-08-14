@@ -426,7 +426,7 @@
                                       <Component id="jLabel24" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
                                       <Component id="jComboBox9" min="-2" pref="66" max="-2" attributes="0"/>
-                                      <EmptySpace pref="222" max="32767" attributes="0"/>
+                                      <EmptySpace pref="213" max="32767" attributes="0"/>
                                       <Component id="jLabel13" min="-2" max="-2" attributes="0"/>
                                   </Group>
                                   <Group type="102" alignment="0" attributes="0">
@@ -436,7 +436,10 @@
                                   </Group>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="txtSearch" min="-2" pref="200" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="txtSearch" min="-2" pref="200" max="-2" attributes="0"/>
+                                  <Component id="jButton5" min="-2" pref="168" max="-2" attributes="0"/>
+                              </Group>
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -459,9 +462,12 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jScrollPane2" pref="414" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="jPanel8" pref="226" max="32767" attributes="0"/>
-                          <Component id="jPanel11" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="jPanel8" pref="226" max="32767" attributes="0"/>
+                              <Component id="jPanel11" max="32767" attributes="0"/>
+                          </Group>
+                          <Component id="jButton5" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -579,6 +585,7 @@
             </Component>
             <Container class="javax.swing.JPanel" name="jPanel11">
               <AuxValues>
+                <AuxValue name="JavaCodeGenerator_LayoutCodePost" type="java.lang.String" value="jPanel11.setVisible(false);"/>
                 <AuxValue name="JavaCodeGenerator_LayoutCodePre" type="java.lang.String" value="for(int i=0; i&lt;8; i++){&#xa;    jPanel11.add(txtListId.get(i));&#xa;}"/>
               </AuxValues>
 
@@ -589,7 +596,12 @@
             </Container>
             <Component class="javax.swing.JLabel" name="jLabel13">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Search"/>
+                <Property name="text" type="java.lang.String" value="Search   "/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JButton" name="jButton5">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Proses"/>
               </Properties>
             </Component>
           </SubComponents>
