@@ -11,17 +11,23 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -35,6 +41,7 @@ import javax.swing.text.PlainDocument;
 import model.ListData;
 import model.LoadTable;
 import model.MinMaxData;
+import model.TableColumnName;
 import model.TestConnection;
 
 /**
@@ -47,27 +54,80 @@ public class MainForm extends javax.swing.JFrame {
      * Creates new form MainForm
      */
     private MinMaxData minMaxData;
-    DefaultTableModel tm, currtableModel;
-    TestConnection tc;
-    List<JComboBox<String>> combo = new ArrayList<>();
-    List<JTextField> txtListId = new ArrayList<>();
-    List<JLabel> lblCombo = new ArrayList<>();
-    Vector originalTableModel;
-    String max;
-    String budget = "";
+    private DefaultTableModel tm, currtableModel, smartTableModel, alternatifPerhitunganTableModel;
+    private TestConnection tc;
+    private List<JComboBox<String>> combo = new ArrayList<>();
+    private List<JTextField> txtListId = new ArrayList<>();
+    private List<JLabel> lblCombo = new ArrayList<>();
+    private List<JCheckBox> check = new ArrayList<>();
+    private List<JTextField> txtBobotPalingPenting = new ArrayList<>();
+    private List<JTextField> txtBobotTidakPenting = new ArrayList<>();
+    private String[] kriteriaList;
+    private Vector originalTableModel;
+    private String max;
+    private String budget = "";
+    private TableColumnName tcn;
+    private JLabel labelKriteriaTidakPenting = new JLabel("Kriteria Paling Tidak Penting"),
+                   labelKriteriaPalingPenting = new JLabel("Kriteria Paling Penting"),
+                   labelBobotPalingPenting = new JLabel("Bobot"),
+                   labelBobotTidakPenting = new JLabel("Bobot");
+    List<String> column, originalColumn, fixColumn;
+    
     public MainForm() {
         setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
         getRootPane().setWindowDecorationStyle(javax.swing.JRootPane.NONE);
         setLocation(0,0);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         
+        labelKriteriaTidakPenting.setHorizontalAlignment(JLabel.LEFT);
+        labelKriteriaPalingPenting.setHorizontalAlignment(JLabel.LEFT);
+        labelBobotPalingPenting.setHorizontalAlignment(JLabel.CENTER);
+        labelBobotTidakPenting.setHorizontalAlignment(JLabel.CENTER);
+        
+        column = new ArrayList<>();
+        originalColumn = new ArrayList<>();
+        fixColumn = new ArrayList<>();
+        
         tc = new TestConnection();
         tm = new LoadTable(tc.getConnection(), "select * from mobil").getTableModel();
+        smartTableModel = new DefaultTableModel();
+        alternatifPerhitunganTableModel = new DefaultTableModel();
         
         setSize((int)screenSize.getWidth()-50,(int)screenSize.getHeight()-50);
         
-        /* combo list fot criteria */
-        //Object[] dataModelMobil = new ListData("mobil", "model").getData();
+        /* preparation for column */
+        tcn = new TableColumnName("mobil");
+        kriteriaList = tcn.getColumnName();
+        
+        /* Check Box for Kriteria */
+        for(int i=0; i<kriteriaList.length; i++){
+            String kriteriaName = kriteriaList[i];
+            JCheckBox checkBox = new JCheckBox(Character.toUpperCase(kriteriaName.charAt(0)) + kriteriaName.substring(1));
+            checkBox.setSelected(true);
+            
+            check.add(checkBox);
+            
+            int a = i;
+            checkBox.addItemListener(new ItemListener(){
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    if(checkBox.isSelected()){
+                        kriteriaList[a] = kriteriaName;
+                        System.out.println("Add : " + kriteriaName);
+                    }
+                    else{
+                        kriteriaList[a] = "";
+                        System.out.println("Remove : " + kriteriaName);
+                    }
+//                    System.out.print("List : ");
+//                    for(String test : kriteriaList){
+//                        System.out.print(test + ", ");
+//                    }
+                }
+            });
+        }
+        
+        /* combo list fot alternatif */
         Object[] dataModelMultiColumn = new ListData("mobil", "id_mobil", "model").getMultiColumnData();
         for(int i=0; i<8; i++){
             JLabel lblComboBox = new JLabel("Alternatif " + (i+1) + "   ");
@@ -142,13 +202,8 @@ public class MainForm extends javax.swing.JFrame {
         txtPurnaJual = new javax.swing.JTextField();
         txtId = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
-        chkTransmisi = new javax.swing.JCheckBox();
         jLabel8 = new javax.swing.JLabel();
-        chkWarna = new javax.swing.JCheckBox();
-        chkKapasitas = new javax.swing.JCheckBox();
-        chkBahanBakar = new javax.swing.JCheckBox();
-        chkHarga = new javax.swing.JCheckBox();
-        chkPurnaJual = new javax.swing.JCheckBox();
+        panelKriteria = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         jLabel23 = new javax.swing.JLabel();
         jLabel24 = new javax.swing.JLabel();
@@ -165,46 +220,25 @@ public class MainForm extends javax.swing.JFrame {
         jLabel13 = new javax.swing.JLabel();
         jButton5 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
-        jPanel7 = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTable3 = new javax.swing.JTable();
+        jTabbedPane2 = new javax.swing.JTabbedPane();
         jPanel9 = new javax.swing.JPanel();
+        jPanel7 = new javax.swing.JPanel();
+        panelKriteriaTidakPenting = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
-        txtModel1 = new javax.swing.JTextField();
-        txtTransmisi1 = new javax.swing.JTextField();
-        txtWarna1 = new javax.swing.JTextField();
-        txtKapasitas1 = new javax.swing.JTextField();
-        txtBahanBakar1 = new javax.swing.JTextField();
-        txtHarga1 = new javax.swing.JTextField();
-        txtPurnaJual1 = new javax.swing.JTextField();
-        jPanel10 = new javax.swing.JPanel();
-        jPanel14 = new javax.swing.JPanel();
+        panelBobotTidakPenting = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
-        txtModelBobot1 = new javax.swing.JTextField();
-        txtTransmisiBobot1 = new javax.swing.JTextField();
-        txtWarnaBobot1 = new javax.swing.JTextField();
-        txtKapasitasBobot1 = new javax.swing.JTextField();
-        txtBahanBakarBobot1 = new javax.swing.JTextField();
-        txtHargaBobo1 = new javax.swing.JTextField();
-        txtPurnaJualBobot1 = new javax.swing.JTextField();
         jPanel13 = new javax.swing.JPanel();
-        jPanel16 = new javax.swing.JPanel();
+        panelKriteriaPalingPenting = new javax.swing.JPanel();
         jLabel11 = new javax.swing.JLabel();
-        txtModel3 = new javax.swing.JTextField();
-        txtTransmisi3 = new javax.swing.JTextField();
-        txtWarna3 = new javax.swing.JTextField();
-        txtKapasitas3 = new javax.swing.JTextField();
-        txtBahanBakar3 = new javax.swing.JTextField();
-        txtHarga3 = new javax.swing.JTextField();
-        txtPurnaJual3 = new javax.swing.JTextField();
-        jPanel17 = new javax.swing.JPanel();
-        jPanel18 = new javax.swing.JPanel();
+        panelBobotPalingPenting = new javax.swing.JPanel();
         jLabel12 = new javax.swing.JLabel();
-        txtModelBobot3 = new javax.swing.JTextField();
-        txtTransmisiBobot3 = new javax.swing.JTextField();
-        txtWarnaBobot3 = new javax.swing.JTextField();
-        txtKapasitasBobot3 = new javax.swing.JTextField();
-        txtBahanBakarBobot3 = new javax.swing.JTextField();
-        txtHargaBobo3 = new javax.swing.JTextField();
-        txtPurnaJualBobot3 = new javax.swing.JTextField();
+        jButton6 = new javax.swing.JButton();
+        jPanel12 = new javax.swing.JPanel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jTable4 = new javax.swing.JTable();
+        jButton7 = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
@@ -335,7 +369,7 @@ public class MainForm extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1127, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1242, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -350,7 +384,7 @@ public class MainForm extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 459, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -363,25 +397,12 @@ public class MainForm extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Data Mobil", jPanel1);
 
-        chkTransmisi.setSelected(true);
-        chkTransmisi.setText("Transmisi");
-
         jLabel8.setText("Tentukan kriteria");
 
-        chkWarna.setSelected(true);
-        chkWarna.setText("Warna");
-
-        chkKapasitas.setSelected(true);
-        chkKapasitas.setText("Kapasitas");
-
-        chkBahanBakar.setSelected(true);
-        chkBahanBakar.setText("Bahan Bakar");
-
-        chkHarga.setSelected(true);
-        chkHarga.setText("Harga");
-
-        chkPurnaJual.setSelected(true);
-        chkPurnaJual.setText("Purna Jual");
+        panelKriteria.setLayout(new java.awt.GridLayout(8, 0));
+        for(int i=0; i<check.size(); i++){
+            panelKriteria.add(check.get(i));
+        }
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -389,15 +410,10 @@ public class MainForm extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(chkWarna, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(chkKapasitas, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(chkBahanBakar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(chkHarga, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(chkPurnaJual, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(chkTransmisi, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(1033, Short.MAX_VALUE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel8)
+                    .addComponent(panelKriteria, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(1077, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -405,18 +421,8 @@ public class MainForm extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel8)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(chkTransmisi)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(chkWarna)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(chkKapasitas)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(chkBahanBakar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(chkHarga)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(chkPurnaJual)
-                .addContainerGap(496, Short.MAX_VALUE))
+                .addComponent(panelKriteria, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(455, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Kriteria", jPanel2);
@@ -426,6 +432,7 @@ public class MainForm extends javax.swing.JFrame {
         jLabel24.setText("Jumlah yang di pilih");
 
         txtBudget.setDocument(new JTextFieldLimit(10));
+        txtBudget.setText("0");
 
         jComboBox9.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3", "4", "5", "6", "7", "8" }));
         jComboBox9.setSelectedIndex(7);
@@ -473,11 +480,16 @@ public class MainForm extends javax.swing.JFrame {
             jPanel11.add(txtListId.get(i));
         }
 
-        jPanel11.setVisible(false);
+        jPanel11.setVisible(true);
 
         jLabel13.setText("Search   ");
 
         jButton5.setText("Proses");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
@@ -499,7 +511,7 @@ public class MainForm extends javax.swing.JFrame {
                                 .addComponent(jLabel24)
                                 .addGap(25, 25, 25)
                                 .addComponent(jComboBox9, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 213, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 328, Short.MAX_VALUE)
                                 .addComponent(jLabel13))
                             .addGroup(jPanel6Layout.createSequentialGroup()
                                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, 443, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -524,7 +536,7 @@ public class MainForm extends javax.swing.JFrame {
                     .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel13))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 373, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -536,133 +548,164 @@ public class MainForm extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Alternatif", jPanel6);
 
+        jTable3.setModel(smartTableModel);
+        jScrollPane3.setViewportView(jTable3);
+
         jPanel7.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        jPanel9.setBorder(null);
-        jPanel9.setLayout(new java.awt.GridLayout(8, 0));
+        panelKriteriaTidakPenting.setBorder(null);
+        panelKriteriaTidakPenting.setLayout(new java.awt.GridLayout(8, 0));
 
         jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel9.setText("Kriteria Paling Tidak Penting");
-        jPanel9.add(jLabel9);
-        jPanel9.add(txtModel1);
-        jPanel9.add(txtTransmisi1);
-        jPanel9.add(txtWarna1);
-        jPanel9.add(txtKapasitas1);
-        jPanel9.add(txtBahanBakar1);
-        jPanel9.add(txtHarga1);
-        jPanel9.add(txtPurnaJual1);
+        panelKriteriaTidakPenting.add(jLabel9);
 
-        jPanel10.setBorder(null);
-        jPanel10.setLayout(new java.awt.GridLayout(1, 0));
-
-        jPanel14.setLayout(new java.awt.GridLayout(8, 0));
+        panelBobotTidakPenting.setLayout(new java.awt.GridLayout(8, 0));
 
         jLabel10.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel10.setText("Bobot");
-        jPanel14.add(jLabel10);
-        jPanel14.add(txtModelBobot1);
-        jPanel14.add(txtTransmisiBobot1);
-        jPanel14.add(txtWarnaBobot1);
-        jPanel14.add(txtKapasitasBobot1);
-        jPanel14.add(txtBahanBakarBobot1);
-        jPanel14.add(txtHargaBobo1);
-        jPanel14.add(txtPurnaJualBobot1);
-
-        jPanel10.add(jPanel14);
+        panelBobotTidakPenting.add(jLabel10);
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
         jPanel7Layout.setHorizontalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
-                .addGap(53, 53, 53)
-                .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(52, Short.MAX_VALUE))
+                .addGap(139, 139, 139)
+                .addComponent(panelKriteriaTidakPenting, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelBobotTidakPenting, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
+            .addGroup(jPanel7Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE)
-                    .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(panelKriteriaTidakPenting, javax.swing.GroupLayout.DEFAULT_SIZE, 228, Short.MAX_VALUE)
+                    .addComponent(panelBobotTidakPenting, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(49, Short.MAX_VALUE))
         );
 
         jPanel13.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        jPanel16.setBorder(null);
-        jPanel16.setLayout(new java.awt.GridLayout(8, 0));
+        panelKriteriaPalingPenting.setBorder(null);
+        panelKriteriaPalingPenting.setLayout(new java.awt.GridLayout(8, 0));
 
         jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel11.setText("Kriteria Paling Tidak Penting");
-        jPanel16.add(jLabel11);
-        jPanel16.add(txtModel3);
-        jPanel16.add(txtTransmisi3);
-        jPanel16.add(txtWarna3);
-        jPanel16.add(txtKapasitas3);
-        jPanel16.add(txtBahanBakar3);
-        jPanel16.add(txtHarga3);
-        jPanel16.add(txtPurnaJual3);
+        jLabel11.setText("Kriteria Paling Penting");
+        panelKriteriaPalingPenting.add(jLabel11);
 
-        jPanel17.setBorder(null);
-        jPanel17.setLayout(new java.awt.GridLayout(1, 0));
-
-        jPanel18.setLayout(new java.awt.GridLayout(8, 0));
+        panelBobotPalingPenting.setLayout(new java.awt.GridLayout(8, 0));
 
         jLabel12.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel12.setText("Bobot");
-        jPanel18.add(jLabel12);
-        jPanel18.add(txtModelBobot3);
-        jPanel18.add(txtTransmisiBobot3);
-        jPanel18.add(txtWarnaBobot3);
-        jPanel18.add(txtKapasitasBobot3);
-        jPanel18.add(txtBahanBakarBobot3);
-        jPanel18.add(txtHargaBobo3);
-        jPanel18.add(txtPurnaJualBobot3);
+        panelBobotPalingPenting.add(jLabel12);
 
-        jPanel17.add(jPanel18);
+        jButton6.setText("Proses");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
         jPanel13.setLayout(jPanel13Layout);
         jPanel13Layout.setHorizontalGroup(
             jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel13Layout.createSequentialGroup()
-                .addGap(53, 53, 53)
-                .addComponent(jPanel16, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(139, 139, 139)
+                .addComponent(panelKriteriaPalingPenting, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel17, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(52, Short.MAX_VALUE))
+                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
+                    .addComponent(panelBobotPalingPenting, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel13Layout.setVerticalGroup(
             jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel13Layout.createSequentialGroup()
+            .addGroup(jPanel13Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel17, javax.swing.GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE)
-                    .addComponent(jPanel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(panelBobotPalingPenting, javax.swing.GroupLayout.DEFAULT_SIZE, 228, Short.MAX_VALUE)
+                    .addComponent(panelKriteriaPalingPenting, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton6)
                 .addContainerGap())
         );
+
+        javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
+        jPanel9.setLayout(jPanel9Layout);
+        jPanel9Layout.setHorizontalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(272, Short.MAX_VALUE))
+        );
+        jPanel9Layout.setVerticalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+
+        jTabbedPane2.addTab("Check Bobot", jPanel9);
+
+        jTable4.setModel(alternatifPerhitunganTableModel);
+        jScrollPane4.setViewportView(jTable4);
+
+        jButton7.setText("Proses");
+
+        javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
+        jPanel12.setLayout(jPanel12Layout);
+        jPanel12Layout.setHorizontalGroup(
+            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel12Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 1210, Short.MAX_VALUE)
+                    .addGroup(jPanel12Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+        );
+        jPanel12Layout.setVerticalGroup(
+            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel12Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 256, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
+                .addComponent(jButton7)
+                .addContainerGap())
+        );
+
+        jTabbedPane2.addTab("Pembobotan Alternati", jPanel12);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 33, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane3)
+                    .addComponent(jTabbedPane2, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(456, Short.MAX_VALUE)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jTabbedPane2)
+                .addContainerGap())
         );
 
         jTabbedPane1.addTab("Pembobotan Kriteria", jPanel3);
@@ -671,11 +714,11 @@ public class MainForm extends javax.swing.JFrame {
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1151, Short.MAX_VALUE)
+            .addGap(0, 1266, Short.MAX_VALUE)
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 704, Short.MAX_VALUE)
+            .addGap(0, 663, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Hasil Keputusan", jPanel4);
@@ -701,8 +744,8 @@ public class MainForm extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1)
-                .addContainerGap())
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 699, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -801,6 +844,7 @@ public class MainForm extends javax.swing.JFrame {
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         try{
             budget = txtBudget.getText();
+            int budgetInt = Integer.parseInt(txtBudget.getText());
             /* filter table */
             currtableModel = (DefaultTableModel) jTable2.getModel();
             //To empty the table before search
@@ -808,7 +852,7 @@ public class MainForm extends javax.swing.JFrame {
             //To search for contents from original table content
             for (Object rows : originalTableModel) {
                 Vector rowVector = (Vector) rows;
-                Object purnaJualColumn = rowVector.get(7);
+                Object purnaJualColumn = rowVector.get(1);
                 System.out.println(purnaJualColumn);
                 if(!txtBudget.getText().equals("")){
                     if ((Integer.parseInt(purnaJualColumn.toString()) <= Integer.parseInt(txtBudget.getText()))) {
@@ -823,33 +867,25 @@ public class MainForm extends javax.swing.JFrame {
                 }
             }
             
-            
-            int budget = Integer.parseInt(txtBudget.getText());
-            
-//            Object sql = "select model from mobil where purna_jual <= " + budget + ";";
-//            Object[] dataModelMobil = new ListData(sql, "model").getData();
-//            for(int i=0; i<combo.size(); i++){
-//                combo.get(i).removeAllItems();
-//                if(dataModelMobil.length > 0){
-//                    for(Object data : dataModelMobil)
-//                        combo.get(i).addItem(data.toString());
-//                }
-//                else{
-//                    combo.get(i).addItem("--Empty--");
-//                }
-//            }
-            
-            //Object sql = "select model from mobil where purna_jual <= " + budget + ";";
-            Object[] dataModelMultiColumn = new ListData("mobil", "id_mobil", "model", budget).getMultiColumnData();
+            Object[] dataModelMultiColumn = new ListData("mobil", "id_mobil", "model", budgetInt).getMultiColumnData();
             System.out.println("Data Mobil : " + dataModelMultiColumn.length);
             
+            /* Add element */
             if(dataModelMultiColumn.length < 8){
                 DefaultComboBoxModel countItemDisable = new DefaultComboBoxModel();
-                for(int k=0; k< dataModelMultiColumn.length; k++){
-                    countItemDisable.addElement( k+1 );
+                if(dataModelMultiColumn.length == 0)
+                {    
+                    countItemDisable.addElement(0);
+                    jComboBox9.setModel(countItemDisable);
+                    jComboBox9.setSelectedIndex(0);
                 }
-                jComboBox9.setModel(countItemDisable);
-                jComboBox9.setSelectedIndex(dataModelMultiColumn.length - 1);
+                else{
+                    for(int k=0; k< dataModelMultiColumn.length; k++){
+                        countItemDisable.addElement( k+1 );
+                    }
+                    jComboBox9.setModel(countItemDisable);
+                    jComboBox9.setSelectedIndex(dataModelMultiColumn.length - 1);
+                }
             }
             else{
                 DefaultComboBoxModel countItemDisable = new DefaultComboBoxModel();
@@ -860,6 +896,7 @@ public class MainForm extends javax.swing.JFrame {
                 jComboBox9.setSelectedIndex(7);
             }
             
+            /* set enable disable */
             for(int i=0; i<combo.size(); i++){
                 try{
                     //combo.get(i).removeAllItems();
@@ -907,6 +944,7 @@ public class MainForm extends javax.swing.JFrame {
         }
         catch(Exception ex){
             ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Some error detected from your input, please fix your input and try again");
         }
     }//GEN-LAST:event_jButton4ActionPerformed
 
@@ -936,6 +974,45 @@ public class MainForm extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_txtSearchKeyReleased
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        try{
+            processSmart();
+        }
+        catch(Exception ex){
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Some error detected from your input, please fix your input and try again");
+        }
+    }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        List smartColumn = originalColumn;
+        smartColumn.add(0, "id_mobil");
+        try{
+        String[] column = new String[smartTableModel.getColumnCount()];
+        for(int i=0; i<smartTableModel.getColumnCount(); i++){
+            column[i] = smartTableModel.getColumnName(i);
+        }
+        alternatifPerhitunganTableModel = new DefaultTableModel(column, 0);
+        jTable4.setModel(alternatifPerhitunganTableModel);
+        for(int i=0; i<smartTableModel.getRowCount(); i++){
+            ListData listData = new ListData();
+            listData.setColumnByContent("utility", smartColumn.toArray() , "id_mobil", Arrays.copyOf(smartColumn.toArray(), smartColumn.toArray().length, String[].class), new Object[]{txtListId.get(i).getText()});
+            Object[] dataSmartLevel1 = listData.getMultiColumnData();
+            for(int j=0; j<dataSmartLevel1.length; j++){
+                String[] data = (String[]) dataSmartLevel1[j];
+//                for(int k=0; k<data.length; k++){
+//                    
+//                }
+                alternatifPerhitunganTableModel.addRow(data);
+            }
+        }
+        }
+        catch(Exception ex){
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Some error detected from your input, please fix your input and try again");
+        }
+    }//GEN-LAST:event_jButton6ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -973,17 +1050,13 @@ public class MainForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox chkBahanBakar;
-    private javax.swing.JCheckBox chkHarga;
-    private javax.swing.JCheckBox chkKapasitas;
-    private javax.swing.JCheckBox chkPurnaJual;
-    private javax.swing.JCheckBox chkTransmisi;
-    private javax.swing.JCheckBox chkWarna;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
     private javax.swing.JComboBox<String> jComboBox9;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -1004,13 +1077,9 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
+    private javax.swing.JPanel jPanel12;
     private javax.swing.JPanel jPanel13;
-    private javax.swing.JPanel jPanel14;
-    private javax.swing.JPanel jPanel16;
-    private javax.swing.JPanel jPanel17;
-    private javax.swing.JPanel jPanel18;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -1021,50 +1090,120 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
+    private javax.swing.JTable jTable3;
+    private javax.swing.JTable jTable4;
     private javax.swing.JPanel panelAlternatif;
+    private javax.swing.JPanel panelBobotPalingPenting;
+    private javax.swing.JPanel panelBobotTidakPenting;
+    private javax.swing.JPanel panelKriteria;
+    private javax.swing.JPanel panelKriteriaPalingPenting;
+    private javax.swing.JPanel panelKriteriaTidakPenting;
     private javax.swing.JPanel panelLabelLaternatif;
     private javax.swing.JTextField txtBahanBakar;
-    private javax.swing.JTextField txtBahanBakar1;
-    private javax.swing.JTextField txtBahanBakar3;
-    private javax.swing.JTextField txtBahanBakarBobot1;
-    private javax.swing.JTextField txtBahanBakarBobot3;
     private javax.swing.JTextField txtBudget;
     private javax.swing.JTextField txtHarga;
-    private javax.swing.JTextField txtHarga1;
-    private javax.swing.JTextField txtHarga3;
-    private javax.swing.JTextField txtHargaBobo1;
-    private javax.swing.JTextField txtHargaBobo3;
     private javax.swing.JTextField txtId;
     private javax.swing.JTextField txtKapasitas;
-    private javax.swing.JTextField txtKapasitas1;
-    private javax.swing.JTextField txtKapasitas3;
-    private javax.swing.JTextField txtKapasitasBobot1;
-    private javax.swing.JTextField txtKapasitasBobot3;
     private javax.swing.JTextField txtModel;
-    private javax.swing.JTextField txtModel1;
-    private javax.swing.JTextField txtModel3;
-    private javax.swing.JTextField txtModelBobot1;
-    private javax.swing.JTextField txtModelBobot3;
     private javax.swing.JTextField txtPurnaJual;
-    private javax.swing.JTextField txtPurnaJual1;
-    private javax.swing.JTextField txtPurnaJual3;
-    private javax.swing.JTextField txtPurnaJualBobot1;
-    private javax.swing.JTextField txtPurnaJualBobot3;
     private javax.swing.JTextField txtSearch;
     private javax.swing.JTextField txtTransmisi;
-    private javax.swing.JTextField txtTransmisi1;
-    private javax.swing.JTextField txtTransmisi3;
-    private javax.swing.JTextField txtTransmisiBobot1;
-    private javax.swing.JTextField txtTransmisiBobot3;
     private javax.swing.JTextField txtWarna;
-    private javax.swing.JTextField txtWarna1;
-    private javax.swing.JTextField txtWarna3;
-    private javax.swing.JTextField txtWarnaBobot1;
-    private javax.swing.JTextField txtWarnaBobot3;
     // End of variables declaration//GEN-END:variables
+
+    private void processSmart() {
+        int countSelected = Integer.parseInt(jComboBox9.getSelectedItem().toString());
+        
+        column.add("id_mobil");
+        column.add("model");
+        fixColumn.add("id_mobil");
+        fixColumn.add("model");
+        
+        /* INITIALIZE NEW COLUMN FOR SELECTED KRITERIA */
+        for(int j=0; j<kriteriaList.length; j++){
+            if(!kriteriaList[j].equals("")){
+                if(!kriteriaList[j].equals("model"))
+                    column.add(kriteriaList[j]);
+                fixColumn.add(kriteriaList[j]);
+                originalColumn.add(kriteriaList[j]);
+            }
+        }
+        Object[] columns = column.toArray();
+        Object[] fixColumns = fixColumn.toArray();
+        smartTableModel = new DefaultTableModel(columns, 0){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                // semua baris dan kolom false
+                return false;
+            }
+        };
+        
+        int budgetInt = 0;
+        try{
+            budgetInt = Integer.parseInt(txtBudget.getText());
+        }
+        catch(Exception ex){
+            budgetInt = 0;
+        }
+        for(int i=0;i<Integer.parseInt(jComboBox9.getSelectedItem().toString()); i++){
+            ListData listData = new ListData();
+            listData.setColumnByContent("mobil", "id_mobil", Arrays.copyOf(columns, columns.length, String[].class), new Object[]{txtListId.get(i).getText()});
+            Object[] dataSmartLevel1 = listData.getMultiColumnData();
+//            Object[] dataSmartLevel1 = new ListData("mobil", columns, budgetInt).getMultiColumnData();
+            System.out.println("Data : ");
+            for(int j=0; j<dataSmartLevel1.length; j++){
+                String[] dataMobil = (String[])dataSmartLevel1[j];
+                System.out.println(Arrays.toString(dataMobil));
+
+                smartTableModel.addRow(dataMobil);
+            }
+        }
+        jTable3.setModel(smartTableModel);
+        
+        /* CONFIGURE LAYOUT ON PEMBOBOTAN KRITERIA */
+        
+        // Empty Krieria
+        // Add Label for description
+        panelKriteriaTidakPenting.removeAll();
+            panelKriteriaTidakPenting.add(labelKriteriaTidakPenting);
+        panelKriteriaPalingPenting.removeAll();
+            panelKriteriaPalingPenting.add(labelKriteriaPalingPenting);
+        panelBobotPalingPenting.removeAll();
+            panelBobotPalingPenting.add(labelBobotPalingPenting);
+        panelBobotTidakPenting.removeAll();
+            panelBobotTidakPenting.add(labelBobotTidakPenting);
+            
+        
+        
+        for(int i=2; i<fixColumns.length; i++){
+            /* Set Data Bobot (Table Kriteria) */
+            ListData bobot = new ListData();
+            bobot.setColumnByContent("kriteria", 
+                                     "kriteria",
+                                     new String[]{"kriteria", "low_bobot", "high_bobot"}, 
+                                     new Object[]{fixColumns[i].toString()});
+            
+            /* Add label to Panel */
+            panelKriteriaTidakPenting.add(new JLabel(fixColumns[i].toString()));
+            panelKriteriaPalingPenting.add(new JLabel(fixColumns[i].toString()));
+            
+            /* Initial of textfield for bobot */
+            JTextField bobotTidakPenting = new JTextField(bobot.getSingleData(0, 1));
+            txtBobotTidakPenting.add(bobotTidakPenting);
+            JTextField bobotPalingPenting = new JTextField(bobot.getSingleData(0, 2));
+            txtBobotPalingPenting.add(bobotPalingPenting);
+            
+            /* Add text field list array to panel */
+            panelBobotPalingPenting.add(txtBobotPalingPenting.get(i-2));
+            panelBobotTidakPenting.add(txtBobotTidakPenting.get(i-2));
+        }
+    }
 }
 
 class JTextFieldLimit extends PlainDocument {

@@ -43,7 +43,6 @@ public class MainForm extends javax.swing.JFrame {
         editBobot = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         analisaBobot = new javax.swing.JMenuItem();
-        analisaMobil = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -89,14 +88,6 @@ public class MainForm extends javax.swing.JFrame {
         });
         jMenu3.add(analisaBobot);
 
-        analisaMobil.setText("Mobil");
-        analisaMobil.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                analisaMobilActionPerformed(evt);
-            }
-        });
-        jMenu3.add(analisaMobil);
-
         jMenuBar1.add(jMenu3);
 
         setJMenuBar(jMenuBar1);
@@ -130,10 +121,6 @@ public class MainForm extends javax.swing.JFrame {
     private void analisaBobotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analisaBobotActionPerformed
         new FormAnalisa().setVisible(true);
     }//GEN-LAST:event_analisaBobotActionPerformed
-
-    private void analisaMobilActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analisaMobilActionPerformed
-        new FormAnalisaMobil().setVisible(true);
-    }//GEN-LAST:event_analisaMobilActionPerformed
 
     /**
      * @param args the command line arguments
@@ -172,7 +159,6 @@ public class MainForm extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem analisaBobot;
-    private javax.swing.JMenuItem analisaMobil;
     private javax.swing.JMenuItem editBobot;
     private javax.swing.JMenuItem editUtility;
     private javax.swing.JMenu jMenu1;
