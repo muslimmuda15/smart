@@ -54,7 +54,7 @@ public class MainForm extends javax.swing.JFrame {
      * Creates new form MainForm
      */
     private MinMaxData minMaxData;
-    private DefaultTableModel tm, currtableModel, smartTableModel, alternatifPerhitunganTableModel;
+    private DefaultTableModel tm, currtableModel, smartTableModel, alternatifPerhitunganTableModel, hasilKeputusanTableModel;
     private TestConnection tc;
     private List<JComboBox<String>> combo = new ArrayList<>();
     private List<JTextField> txtListId = new ArrayList<>();
@@ -65,6 +65,7 @@ public class MainForm extends javax.swing.JFrame {
     private String[] kriteriaList;
     private Vector originalTableModel;
     private String max;
+    private String min;
     private String budget = "";
     private TableColumnName tcn;
     private JLabel labelKriteriaTidakPenting = new JLabel("Kriteria Paling Tidak Penting"),
@@ -72,6 +73,11 @@ public class MainForm extends javax.swing.JFrame {
                    labelBobotPalingPenting = new JLabel("Bobot"),
                    labelBobotTidakPenting = new JLabel("Bobot");
     List<String> column, originalColumn, fixColumn;
+    int jumlahBobotPalingPenting;
+    int jumlahBobotTidakPenting;
+    double[] normalisasiPalingPenting;
+    double[] normalisasiTidakPenting;
+    double[] bobotRataRata;
     
     public MainForm() {
         setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
@@ -484,7 +490,7 @@ public class MainForm extends javax.swing.JFrame {
 
         jLabel13.setText("Search   ");
 
-        jButton5.setText("Proses");
+        jButton5.setText("Hitung Bobot Kriteria");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton5ActionPerformed(evt);
@@ -602,7 +608,7 @@ public class MainForm extends javax.swing.JFrame {
         jLabel12.setText("Bobot");
         panelBobotPalingPenting.add(jLabel12);
 
-        jButton6.setText("Proses");
+        jButton6.setText("Hitung Bobot Alternatif");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton6ActionPerformed(evt);
@@ -615,11 +621,12 @@ public class MainForm extends javax.swing.JFrame {
             jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel13Layout.createSequentialGroup()
                 .addGap(139, 139, 139)
-                .addComponent(panelKriteriaPalingPenting, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
-                    .addComponent(panelBobotPalingPenting, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel13Layout.createSequentialGroup()
+                        .addComponent(panelKriteriaPalingPenting, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(panelBobotPalingPenting, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel13Layout.setVerticalGroup(
@@ -643,7 +650,7 @@ public class MainForm extends javax.swing.JFrame {
                 .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(272, Short.MAX_VALUE))
+                .addContainerGap(221, Short.MAX_VALUE))
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -660,7 +667,12 @@ public class MainForm extends javax.swing.JFrame {
         jTable4.setModel(alternatifPerhitunganTableModel);
         jScrollPane4.setViewportView(jTable4);
 
-        jButton7.setText("Proses");
+        jButton7.setText("Hitung Hasil Keputusan");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
         jPanel12.setLayout(jPanel12Layout);
@@ -672,7 +684,7 @@ public class MainForm extends javax.swing.JFrame {
                     .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 1210, Short.MAX_VALUE)
                     .addGroup(jPanel12Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         jPanel12Layout.setVerticalGroup(
@@ -978,6 +990,8 @@ public class MainForm extends javax.swing.JFrame {
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         try{
             processSmart();
+            jTabbedPane1.setSelectedIndex(3);
+            jTabbedPane2.setSelectedIndex(0);
         }
         catch(Exception ex){
             ex.printStackTrace();
@@ -987,32 +1001,75 @@ public class MainForm extends javax.swing.JFrame {
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         List smartColumn = originalColumn;
-        smartColumn.add(0, "id_mobil");
+        
+        /* INITIAL FOR TABLE PROCESS SMART */
         try{
-        String[] column = new String[smartTableModel.getColumnCount()];
-        for(int i=0; i<smartTableModel.getColumnCount(); i++){
-            column[i] = smartTableModel.getColumnName(i);
-        }
-        alternatifPerhitunganTableModel = new DefaultTableModel(column, 0);
-        jTable4.setModel(alternatifPerhitunganTableModel);
-        for(int i=0; i<smartTableModel.getRowCount(); i++){
-            ListData listData = new ListData();
-            listData.setColumnByContent("utility", smartColumn.toArray() , "id_mobil", Arrays.copyOf(smartColumn.toArray(), smartColumn.toArray().length, String[].class), new Object[]{txtListId.get(i).getText()});
-            Object[] dataSmartLevel1 = listData.getMultiColumnData();
-            for(int j=0; j<dataSmartLevel1.length; j++){
-                String[] data = (String[]) dataSmartLevel1[j];
-//                for(int k=0; k<data.length; k++){
-//                    
-//                }
-                alternatifPerhitunganTableModel.addRow(data);
+            smartColumn.add(0, "utility.id_mobil");
+            smartColumn.add(1, "mobil.model");
+
+            for(int i=2; i<smartColumn.size(); i++){
+                System.out.print((i-1) + " : ");
+                smartColumn.set(i, "utility." + smartColumn.get(i));
+                System.out.println(smartColumn.get(i));
             }
-        }
+
+            String selectedWhere = "";
+            for(int i=0; i<Integer.parseInt(jComboBox9.getSelectedItem().toString()); i++){
+                if(i > 0)
+                    selectedWhere += " or ";
+                selectedWhere += "utility.id_mobil like '" + txtListId.get(i).getText() + "'";
+            }
+
+            String query = "Select " + Arrays.toString(smartColumn.toArray()).replaceAll("^\\[|\\]$","") + " from utility\n" +
+                            "LEFT JOIN mobil ON utility.id_mobil = mobil.id_mobil where " + selectedWhere + ";";
+            System.out.println("Table Filter : " + query);
+
+            alternatifPerhitunganTableModel = new LoadTable(tc.getConnection(), query).getTableModel();
+            
+            /* SMARTING TABLE */
+            for(int i=0; i< alternatifPerhitunganTableModel.getRowCount(); i++){
+                for(int j=2; j< alternatifPerhitunganTableModel.getColumnCount(); j++){
+                    String value = alternatifPerhitunganTableModel.getValueAt(i, j).toString();
+                    minMaxData = new MinMaxData(tc.getConnection(), "utility", alternatifPerhitunganTableModel.getColumnName(j));
+                    max = minMaxData.getMax();
+                    min = minMaxData.getMin();
+                    double maxVal = Double.parseDouble(max);
+                    double minVal = Double.parseDouble(min);
+                    double currentVal = Double.parseDouble(value);
+                    double result = ((maxVal - currentVal) / (maxVal - minVal));
+                    //System.out.println("(" + max + " - " + value + ") / (" + max + " - " + min + ") = " + result);
+                    alternatifPerhitunganTableModel.setValueAt(Double.toString(result * 100) + " %", i, j);
+                }
+            }
+            
+            jTable4.setModel(alternatifPerhitunganTableModel);
+            
+            jTabbedPane2.setSelectedIndex(1);
         }
         catch(Exception ex){
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, "Some error detected from your input, please fix your input and try again");
         }
     }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        normalisasiPalingPenting = new double[txtBobotPalingPenting.size()];
+        normalisasiTidakPenting = new double[txtBobotTidakPenting.size()];
+        bobotRataRata = new double[txtBobotTidakPenting.size()];
+        
+        for(int i=0; i<txtBobotPalingPenting.size(); i++){
+            double hitungNormalisasiTidakPenting = Double.parseDouble(txtBobotTidakPenting.get(i).getText()) / (double)jumlahBobotTidakPenting;
+            normalisasiTidakPenting[i] = hitungNormalisasiTidakPenting;
+            
+            double hitungNormalisasiPalingPenting = Double.parseDouble(txtBobotPalingPenting.get(i).getText()) / (double)jumlahBobotPalingPenting;
+            normalisasiPalingPenting[i] = hitungNormalisasiPalingPenting;
+            
+            double rataRataBobot = (hitungNormalisasiTidakPenting + hitungNormalisasiPalingPenting) / 2;
+            bobotRataRata[i] = rataRataBobot;
+        }
+        
+        
+    }//GEN-LAST:event_jButton7ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1119,6 +1176,11 @@ public class MainForm extends javax.swing.JFrame {
 
     private void processSmart() {
         int countSelected = Integer.parseInt(jComboBox9.getSelectedItem().toString());
+        column.clear();
+        fixColumn.clear();
+        originalColumn.clear();
+        jumlahBobotPalingPenting = 0;
+        jumlahBobotTidakPenting = 0;
         
         column.add("id_mobil");
         column.add("model");
@@ -1179,7 +1241,7 @@ public class MainForm extends javax.swing.JFrame {
         panelBobotTidakPenting.removeAll();
             panelBobotTidakPenting.add(labelBobotTidakPenting);
             
-        
+        System.out.println("Fix Column : " + Arrays.toString(fixColumns));
         
         for(int i=2; i<fixColumns.length; i++){
             /* Set Data Bobot (Table Kriteria) */
@@ -1195,14 +1257,18 @@ public class MainForm extends javax.swing.JFrame {
             
             /* Initial of textfield for bobot */
             JTextField bobotTidakPenting = new JTextField(bobot.getSingleData(0, 1));
+            jumlahBobotTidakPenting += Integer.parseInt(bobot.getSingleData(0, 1));
             txtBobotTidakPenting.add(bobotTidakPenting);
+            
             JTextField bobotPalingPenting = new JTextField(bobot.getSingleData(0, 2));
+            jumlahBobotPalingPenting += Integer.parseInt(bobot.getSingleData(0, 2));
             txtBobotPalingPenting.add(bobotPalingPenting);
             
             /* Add text field list array to panel */
             panelBobotPalingPenting.add(txtBobotPalingPenting.get(i-2));
             panelBobotTidakPenting.add(txtBobotTidakPenting.get(i-2));
         }
+        
     }
 }
 

@@ -1,2 +1,0 @@
-design.FormAnalisa
-design.LastRowBold

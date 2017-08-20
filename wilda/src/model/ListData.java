@@ -7,6 +7,7 @@ package model;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,9 +20,11 @@ import java.util.logging.Logger;
  * @author rachmad
  */
 public class ListData {
-    TestConnection tc;
-    List<String> columns=new ArrayList<>();
-    List<String[]> multiColumns=new ArrayList<>();
+    private TestConnection tc;
+    private List<String> columns=new ArrayList<>();
+    private List<String[]> multiColumns=new ArrayList<>();
+    private List<String> columnData;
+    private List<String[]> rowData;
     public ListData(){
         
     }
@@ -145,6 +148,34 @@ public class ListData {
         }
     }
     
+    public void setColumnByContent(String query){
+        System.out.println("Column By Content : " + query);
+        try {
+            tc = new TestConnection();
+            PreparedStatement statement =  tc.getConnection().prepareStatement(query);
+            ResultSet rs = statement.executeQuery();
+            ResultSetMetaData metaData = rs.getMetaData();
+            columnData = new ArrayList<>();
+            rowData = new ArrayList<>();
+            
+            for(int i=0; i<metaData.getColumnCount(); i++){
+                columnData.add(metaData.getColumnName(i));
+            }
+            
+            int i=0;
+            while(rs.next()){
+                String[] getData = new String[metaData.getColumnCount()];
+                for(int j=0; j<metaData.getColumnCount(); j++){
+                    getData[j] = rs.getObject(j).toString();
+                }
+                rowData.add(getData);
+                i++;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(CountData.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     public void setColumnByContent(String table, Object[] selectByColumn , String column, String[] selectedColumn, Object[] content){
         String col = "";
         for(int i=0; i<content.length; i++){
@@ -186,5 +217,13 @@ public class ListData {
         String[] getRowData = (String[]) data[row];
         String getValue = getRowData[column];
         return getValue;
+    }
+    
+    public Object[] getColumnName(){
+        return columnData.toArray();
+    }
+    
+    public Object[] getRowData(){
+        return rowData.toArray();
     }
 }
