@@ -176,14 +176,18 @@ public class Login extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void usernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usernameActionPerformed
-        // TODO add your handling code here:
+        login();
     }//GEN-LAST:event_usernameActionPerformed
 
     private void passwordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passwordActionPerformed
-        // TODO add your handling code here:
+        login();
     }//GEN-LAST:event_passwordActionPerformed
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
+        login();
+    }//GEN-LAST:event_btnLoginActionPerformed
+
+    private void login(){
         Connection conn = tc.getConnection();
         System.out.println(tc.getResult());
         
@@ -214,8 +218,7 @@ public class Login extends javax.swing.JFrame {
         } catch (SQLException ex) {
             Logger.getLogger(LoadTable.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_btnLoginActionPerformed
-
+    }
     /**
      * @param args the command line arguments
      */

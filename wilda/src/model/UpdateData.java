@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTable;
@@ -42,7 +43,7 @@ public class UpdateData {
             st.executeUpdate(sql);
             st.close();
             
-            String query = "SELECT * FROM " + table;
+            String query = "SELECT " + Arrays.toString(column).replaceAll("^\\[|\\]$", "") + " FROM " + table;
             tc = new TestConnection();
             tb = new LoadTable(tc.getConnection(), query);
             tm = tb.getTableModel();

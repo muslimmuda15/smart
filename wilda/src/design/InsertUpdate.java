@@ -5,6 +5,7 @@
  */
 package design;
 
+import java.util.Arrays;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import model.InsertData;
@@ -46,7 +47,7 @@ public class InsertUpdate extends javax.swing.JFrame {
         transmisi.setText(data[2].toString());
         warna.setText(data[3].toString());
         kapasitas.setText(data[4].toString());
-        kapasitas_mesin.setText(data[5].toString());
+        bahan_bakar.setText(data[5].toString());
         harga.setText(data[6].toString());
         purna_jual.setText(data[7].toString());
     }
@@ -62,7 +63,7 @@ public class InsertUpdate extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
-        kapasitas_mesin = new javax.swing.JTextField();
+        bahan_bakar = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         model = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -85,7 +86,7 @@ public class InsertUpdate extends javax.swing.JFrame {
         jPanel1.setBackground(java.awt.Color.white);
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(137, 130, 130)));
 
-        jLabel5.setText("Kapasitas Mesin");
+        jLabel5.setText("Bahan Bakar");
 
         jLabel1.setText("Model");
 
@@ -119,11 +120,11 @@ public class InsertUpdate extends javax.swing.JFrame {
                             .addComponent(jLabel5)
                             .addComponent(jLabel6)
                             .addComponent(jLabel7))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(39, 39, 39)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(purna_jual)
-                            .addComponent(harga)
-                            .addComponent(kapasitas_mesin)))
+                            .addComponent(harga, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(bahan_bakar)
+                            .addComponent(purna_jual)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -138,7 +139,7 @@ public class InsertUpdate extends javax.swing.JFrame {
                                     .addComponent(jLabel8))
                                 .addGap(53, 53, 53)))
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(model, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(model, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE)
                             .addComponent(transmisi, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(warna)
                             .addComponent(kapasitas)
@@ -171,7 +172,7 @@ public class InsertUpdate extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(kapasitas_mesin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(bahan_bakar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(harga, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -240,14 +241,15 @@ public class InsertUpdate extends javax.swing.JFrame {
         if(status == 0)    // if insert
         {
             String table = "mobil";
-            Object[] column = {"id_mobil", "model", "transmisi", "warna", "kapasitas", "kapasitas_mesin", "harga", "purna_jual"};
-            Object[] data = {id_mobil.getText(), model.getText(), transmisi.getText(), warna.getText(), kapasitas.getText(), kapasitas_mesin.getText(), harga.getText(), purna_jual.getText()};
+            Object[] column = {"id_mobil", "model", "transmisi", "warna", "kapasitas", "bahan_bakar", "harga", "purna_jual"};
+            Object[] data = {id_mobil.getText(), model.getText(), transmisi.getText(), warna.getText(), kapasitas.getText(), bahan_bakar.getText(), harga.getText(), purna_jual.getText()};
             new InsertData(tc.getConnection(), table, column, data, jTable1);
         }
         else{
             String table = "mobil";
-            Object[] column = {"id_mobil", "model", "transmisi", "warna", "kapasitas", "kapasitas_mesin", "harga", "purna_jual"};
-            Object[] data = {id_mobil.getText(), model.getText(), transmisi.getText(), warna.getText(), kapasitas.getText(), kapasitas_mesin.getText(), harga.getText(), purna_jual.getText()};
+            Object[] column = {"id_mobil", "model", "transmisi", "warna", "kapasitas", "bahan_bakar", "harga", "purna_jual"};
+            Object[] data = {id_mobil.getText(), model.getText(), transmisi.getText(), warna.getText(), kapasitas.getText(), bahan_bakar.getText(), harga.getText(), purna_jual.getText()};
+            System.out.println("Data Array : " + Arrays.toString(data));
             new UpdateData(tc.getConnection(), table, column, data, jTable1);
         }
         dispose();
@@ -289,6 +291,7 @@ public class InsertUpdate extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField bahan_bakar;
     private javax.swing.JTextField harga;
     private javax.swing.JTextField id_mobil;
     private javax.swing.JButton jButton1;
@@ -303,7 +306,6 @@ public class InsertUpdate extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JTextField kapasitas;
-    private javax.swing.JTextField kapasitas_mesin;
     private javax.swing.JTextField model;
     private javax.swing.JTextField purna_jual;
     private javax.swing.JTextField transmisi;

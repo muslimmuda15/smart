@@ -95,7 +95,7 @@ public class MainForm extends javax.swing.JFrame {
         fixColumn = new ArrayList<>();
         
         tc = new TestConnection();
-        tm = new LoadTable(tc.getConnection(), "select * from mobil").getTableModel();
+        tm = new LoadTable(tc.getConnection(), "SELECT `id_mobil`, `model`, `transmisi`, `warna`, `kapasitas`, `bahan_bakar`, `harga`, `purna_jual` FROM `mobil`").getTableModel();
         smartTableModel = new DefaultTableModel();
         alternatifPerhitunganTableModel = new DefaultTableModel();
         
@@ -222,7 +222,7 @@ public class MainForm extends javax.swing.JFrame {
         jLabel23 = new javax.swing.JLabel();
         jLabel24 = new javax.swing.JLabel();
         txtBudget = new javax.swing.JTextField();
-        jComboBox9 = new javax.swing.JComboBox<String>();
+        jComboBox9 = new javax.swing.JComboBox<>();
         jButton4 = new javax.swing.JButton();
         jPanel8 = new javax.swing.JPanel();
         panelLabelLaternatif = new javax.swing.JPanel();
@@ -450,7 +450,7 @@ public class MainForm extends javax.swing.JFrame {
         txtBudget.setDocument(new JTextFieldLimit(10));
         txtBudget.setText("0");
 
-        jComboBox9.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1", "2", "3", "4", "5", "6", "7", "8" }));
+        jComboBox9.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3", "4", "5", "6", "7", "8" }));
         jComboBox9.setSelectedIndex(7);
         jComboBox9.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -495,7 +495,7 @@ public class MainForm extends javax.swing.JFrame {
             jPanel11.add(txtListId.get(i));
         }
 
-        jPanel11.setVisible(true);
+        jPanel11.setVisible(false);
 
         jLabel13.setText("Search   ");
 
@@ -526,7 +526,7 @@ public class MainForm extends javax.swing.JFrame {
                                 .addComponent(jLabel24)
                                 .addGap(25, 25, 25)
                                 .addComponent(jComboBox9, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 393, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 394, Short.MAX_VALUE)
                                 .addComponent(jLabel13))
                             .addGroup(jPanel6Layout.createSequentialGroup()
                                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, 443, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -554,9 +554,11 @@ public class MainForm extends javax.swing.JFrame {
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 378, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButton5, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jPanel8, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                        .addComponent(jButton5)
+                        .addGap(11, 11, 11)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -816,6 +818,7 @@ public class MainForm extends javax.swing.JFrame {
             }
             
             Object[] data = new Object[dataValue.size()];
+            System.out.println("Data List : " + Arrays.toString(dataValue.toArray(data)));
 //            String value = jTable1.getModel().getValueAt(row, column).toString();
 //            JOptionPane.showMessageDialog(null, dataValue);
             new InsertUpdate(jTable1, 1, dataValue.toArray(data)).setVisible(true);
